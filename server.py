@@ -3,6 +3,7 @@ import sys
 from socket import *
 import threading
 
+# function for receiving and sending message from each client
 def communication(other_ip, other_port, other_socket, clients_list, clients_dict):
     # username should be first thing sent by client
     # add username, socket pair to dictionary
@@ -16,6 +17,7 @@ def communication(other_ip, other_port, other_socket, clients_list, clients_dict
         # check if sender has ended connection
         if (message == ""):
             print(f"Client {other_ip}, {other_port} has disconnected")
+            # remove client from lists
             clients_list.remove(other_socket)
             clients_dict.pop()
             break
@@ -38,25 +40,29 @@ def feature2(message, clients_dict, client_socket):
 
 def feature1(message, sender_ip, sender_port, clients_list, client_socket):
     #feature 1 here
+    # send to every client except sender
     for client in clients_list:
         if client != client_socket:
             client.send(message.encode())
     
     return
 
+#host and port
 HOST = '0.0.0.0' 
 PORT = 12033
-
-
+# create socket
 server_socket = socket(AF_INET, SOCK_STREAM)
 server_socket.bind((HOST,PORT))
+# listen for connection requests
 server_socket.listen(1)
 clients_dict = {} # maps username and socket
 clients_list = [] # list of client sockets
 threads_list = [] # list of client threads
 try:
     while True:
+        # accept connection
         client_socket, client_address = server_socket.accept()
+        # add to list
         clients_list.append(client_socket)
 
         # make thread to handle client
