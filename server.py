@@ -39,11 +39,7 @@ def feature1(message, sender_ip, sender_port, clients_list, client_socket):
 
 HOST = '0.0.0.0' 
 PORT = '12033'
-if (len(sys.argv) < 2):
-    print("Usage: python3 " + sys.argv[0] + " relay_port")
-    sys.exit(1)
-assert(len(sys.argv) == 2)
-relay_port=int(sys.argv[1])
+
 
 server_socket = socket(AF_INET, SOCK_STREAM)
 server_socket.bind((HOST,PORT))

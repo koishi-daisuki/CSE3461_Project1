@@ -11,14 +11,7 @@ def get_messages():
 
 SERVER_IP = "0.0.0.0"
 SERVER_PORT = '12033'
-if (len(sys.argv) < 3):
-    print("Usage: python3 " + sys.argv[0] + " relay_port integer_to_send")
-    sys.exit(1)
-assert(len(sys.argv) == 3)
-relay_port=int(sys.argv[1])
 
-# Read integer
-data=sys.argv[2]
 
 # Create a socket for the sender
 client_socket=socket(AF_INET, SOCK_STREAM)
