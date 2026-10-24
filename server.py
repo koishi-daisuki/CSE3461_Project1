@@ -3,7 +3,12 @@ import sys
 from socket import *
 import threading
 
-def communication(other_ip, other_port, other_socket, client_username, clients_list, clients_dict):
+def communication(other_ip, other_port, other_socket, clients_list, clients_dict):
+    # username should be first thing sent by client
+    # add username, socket pair to dictionary
+    data = other_socket.recv(200)
+    username = data.decode()
+    clients_dict[username] = other_socket
     while True:
         # receive data
         data = other_socket.recv(200)
@@ -38,29 +43,24 @@ def feature1(message, sender_ip, sender_port, clients_list, client_socket):
     return
 
 HOST = '0.0.0.0' 
-PORT = '12033'
+PORT = 12033
 
 
 server_socket = socket(AF_INET, SOCK_STREAM)
 server_socket.bind((HOST,PORT))
 server_socket.listen(1)
 clients_dict = {} # maps username and socket
-clients_list = []
-threads_list = []
-while True:
-    
-    client_socket, client_address = server_socket.accept()
-    clients_list.append(client_socket)
-    
-    # Get client's username for feature 2
-    client_username = "placeholder"
-    clients_dict[client_username] = client_socket
-    # add username, address pair to dict
+clients_list = [] # list of client sockets
+threads_list = [] # list of client threads
+try:
+    while True:
+        client_socket, client_address = server_socket.accept()
+        clients_list.append(client_socket)
 
-    # make thread to handle client
-    client_thread = threading.Thread(target = communication, args = (client_address[0], client_address[1], client_socket, client_username, clients_list, clients_dict))
-    threads_list.append(client_thread)
-    client_thread.start()
-
-# Close any open sockets
-server_socket.close()
+        # make thread to handle client
+        client_thread = threading.Thread(target = communication, args = (client_address[0], client_address[1], client_socket, clients_list, clients_dict))
+        threads_list.append(client_thread)
+        client_thread.start()
+except KeyboardInterrupt:
+    # Close any open sockets
+    server_socket.close()
