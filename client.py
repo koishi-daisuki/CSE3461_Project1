@@ -1,10 +1,16 @@
 
 import sys
-import os
-import random
-import string
 from socket import *
+import threading
 
+def get_messages():
+    while True:
+        message = client_socket.recv(200)
+        print(message.decode())
+    return
+
+SERVER_IP = "0.0.0.0"
+SERVER_PORT = '12033'
 if (len(sys.argv) < 3):
     print("Usage: python3 " + sys.argv[0] + " relay_port integer_to_send")
     sys.exit(1)
@@ -15,25 +21,18 @@ relay_port=int(sys.argv[1])
 data=sys.argv[2]
 
 # Create a socket for the sender
-sender_socket=socket(AF_INET, SOCK_STREAM)
+client_socket=socket(AF_INET, SOCK_STREAM)
 
-#Q6: Connect client to the relay at the relay_port; fill the values of <c> and <d>
-sender_socket.connect(("127.0.0.1", relay_port))
+#connect client to server
+client_socket.connect((SERVER_IP, SERVER_PORT))
 
-# Wait until the server has also connected to the relay
-input("Press enter to start transmissions")
+# send username to server
+username = input("enter username")
+client_socket.send(username.encode())
 
-# Send this to the relay server for it to relay to the receiver
-sender_socket.send(data.encode())
+listen_thread = threading.Thread(target=get_messages, args=())
+listen_thread.start()
 
-# print debugging information
-print("Data sent: " + data)
-
-#Q7: Receive computed answer from relay
-data = sender_socket.recv(200);
-
-# Print received answer
-print("Data received: ", data.decode())
-
-# Close any open sockets
-sender_socket.close()
+while True:
+    message = input()
+    client_socket.send(message.encode())

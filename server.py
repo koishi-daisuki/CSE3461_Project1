@@ -1,36 +1,70 @@
 
 import sys
-import os
-import random
-import string
 from socket import *
+import threading
 
+def communication(other_ip, other_port, other_socket, client_username, clients_list, clients_dict):
+    while True:
+        # receive data
+        data = other_socket.recv(200)
+        message = data.decode()
+        # check if sender has ended connection
+        if (message == ""):
+            print(f"Client {other_ip}, {other_port} has disconnected")
+            clients_list.remove(other_socket)
+            clients_dict.pop()
+            break
+        words = message.split()
+        # if addressed to a username using @
+        if (words[0][0] == '@'):
+            # send message only to username being @ed
+            feature2(message, clients_dict, other_socket)
+        # if no @
+        else:
+            # broadcast message to everybody
+            feature1(message, other_ip, other_port, clients_list, other_socket)
+
+
+def feature2(message, clients_dict, client_socket):
+    #feature 2 here
+    return
+
+def feature1(message, sender_ip, sender_port, clients_list, client_socket):
+    #feature 1 here
+    for client in clients_list:
+        if client != client_socket:
+            client.send(message.encode())
+    
+    return
+
+HOST = '0.0.0.0' 
+PORT = '12033'
 if (len(sys.argv) < 2):
     print("Usage: python3 " + sys.argv[0] + " relay_port")
     sys.exit(1)
 assert(len(sys.argv) == 2)
 relay_port=int(sys.argv[1])
 
-#Q8: Create a TCP socket for the server [preferably with name <receiver_socket> to be complaint with the rest of the code]
-receiver_socket = socket(AF_INET, SOCK_STREAM)
+server_socket = socket(AF_INET, SOCK_STREAM)
+server_socket.bind((HOST,PORT))
+server_socket.listen(1)
+clients_dict = {} # maps username and socket
+clients_list = []
+threads_list = []
+while True:
+    
+    client_socket, client_address = server_socket.accept()
+    clients_list.append(client_socket)
+    
+    # Get client's username for feature 2
+    client_username = "placeholder"
+    clients_dict[client_username] = client_socket
+    # add username, address pair to dict
 
-#Q9: Connect this socket to the relay at relay_port
-receiver_socket.connect(("127.0.0.1", relay_port))
-
-# Receive any data relayed from the relay (i.e., any data sent by the sender to the relay)
-data = receiver_socket.recv(200)
-
-# Print debugging information
-print("Data received: ", data)
-
-#Q10 Convert received number to binary; feel free to use inbuilt function
-data = bin(int(data.decode()))
-
-# Send computed answer back to relay
-receiver_socket.send(data.encode())
-
-# Print debugging information
-print("Data sent back: ", data)
+    # make thread to handle client
+    client_thread = threading.Thread(target = communication, args = (client_address[0], client_address[1], client_socket, client_username, clients_list, clients_dict))
+    threads_list.append(client_thread)
+    client_thread.start()
 
 # Close any open sockets
-receiver_socket.close()
+server_socket.close()
