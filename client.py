@@ -6,7 +6,7 @@ import threading
 def get_messages():
     while True:
         message = client_socket.recv(200)
-        print("Message Received: ", message.decode())
+        print(message.decode())
     return
 
 SERVER_IP = "0.0.0.0"

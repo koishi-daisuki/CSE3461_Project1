@@ -19,15 +19,17 @@ def communication(other_ip, other_port, other_socket, clients_list, clients_dict
             clients_list.remove(other_socket)
             clients_dict.pop()
             break
+        # add an identifying username to each message
+        final_message = f"{username}: {message}"
         words = message.split()
         # if addressed to a username using @
         if (words[0][0] == '@'):
             # send message only to username being @ed
-            feature2(message, clients_dict, other_socket)
+            feature2(final_message, clients_dict, other_socket)
         # if no @
         else:
             # broadcast message to everybody
-            feature1(message, other_ip, other_port, clients_list, other_socket)
+            feature1(final_message, other_ip, other_port, clients_list, other_socket)
 
 
 def feature2(message, clients_dict, client_socket):
