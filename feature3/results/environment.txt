@@ -1,0 +1,5 @@
+Python: 3.14.3
+Platform: Windows-11-10.0.26200-SP0
+Parameters: {'messages': 100, 'runs': 3, 'loss': [0, 0.1, 0.3], 'ack_loss': 0, 'timeout': 0.3, 'retries': 5, 'interval': 0.001, 'output': WindowsPath('results')}
+Network: real UDP on IPv4 loopback; synthetic loss
+Each run uses a fresh session; seeds 1..runs. Fixed 50ms drain included.
